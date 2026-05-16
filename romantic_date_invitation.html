@@ -267,16 +267,6 @@
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
             noBtn.style.transition = 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            
-            // Make YES button move to center of popup
-            const popupRect = mainPopup.getBoundingClientRect();
-            const popupCenterX = popupRect.left + popupRect.width / 2;
-            const popupCenterY = popupRect.top + popupRect.height / 2;
-            
-            yesBtn.style.position = 'fixed';
-            yesBtn.style.left = (popupCenterX - 50) + 'px';
-            yesBtn.style.top = (popupCenterY + 20) + 'px';
-            yesBtn.style.transition = 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         }
         
         // Handle touch and click on NO button
