@@ -58,6 +58,29 @@
             z-index: 100;
             animation: popupAppear 0.4s ease-out;
             position: relative;
+            background-image: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 35px,
+                    rgba(255, 107, 157, 0.05) 35px,
+                    rgba(255, 107, 157, 0.05) 70px
+                );
+        }
+        
+        .popup::before {
+            content: '❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            font-size: 40px;
+            opacity: 0.08;
+            z-index: -1;
+            word-wrap: break-word;
+            overflow: hidden;
+            line-height: 50px;
         }
         
         @keyframes popupAppear {
@@ -77,12 +100,17 @@
             margin-bottom: 30px;
             line-height: 1.4;
             font-weight: 600;
+            position: relative;
+            z-index: 1;
         }
         
         .button-group {
             display: flex;
             gap: 15px;
             justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
         }
         
         .btn {
@@ -112,11 +140,28 @@
             transform: scale(0.98);
         }
         
+        .btn-no-container {
+            position: relative;
+            min-width: 100px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
         .btn-no {
             background: white;
             color: #666;
             border: 2px solid #ccc;
             min-width: 100px;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: absolute;
+            white-space: nowrap;
         }
         
         .btn-no:hover {
@@ -140,49 +185,25 @@
             max-width: 450px;
         }
         
-        @keyframes popupScaleUp {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.9);
-            }
-            100% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-            }
-        }
-        
         .final-message h2 {
-            font-size: 26px;
+            font-size: 32px;
             color: white;
             margin: 0;
             line-height: 1.6;
             font-weight: 700;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .counter {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #ff6b9d;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            z-index: 150;
-            font-weight: 600;
-            display: none;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
-    <div class="counter" id="counter">Lần hover/click: 0/5</div>
-    
     <div class="popup" id="mainPopup">
-        <h2>Em có muốn đi chơi với anh tối nay không?</h2>
+        <h2>Baby ơi! Em có muốn đi chơi với anh tối nay không?</h2>
         <div class="button-group">
             <button class="btn btn-yes" id="yesBtn">YES</button>
-            <button class="btn btn-no" id="noBtn">NO</button>
+            <div class="btn-no-container">
+                <button class="btn-no" id="noBtn">NO</button>
+            </div>
         </div>
     </div>
 
@@ -208,17 +229,16 @@
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
         const mainPopup = document.getElementById('mainPopup');
-        const counter = document.getElementById('counter');
+        const noBtnContainer = document.querySelector('.btn-no-container');
         
         // Handle YES button
         yesBtn.addEventListener('click', () => {
             mainPopup.style.display = 'none';
-            counter.style.display = 'none';
             
             // Create final message
             const finalMsg = document.createElement('div');
             finalMsg.className = 'final-message';
-            finalMsg.innerHTML = '<h2>Cảm ơn em vì đã đồng ý, anh hứa sẽ không làm em thất vọng ❤️</h2>';
+            finalMsg.innerHTML = '<h2>OMG SHE SAID YES</h2>';
             document.body.appendChild(finalMsg);
             
             // Trigger celebration with more hearts
@@ -227,42 +247,60 @@
             }
         });
         
-        // Handle NO button - make it run away
+        // Make NO button text run away
         function makeNoButtonEscape() {
-            const randomX = Math.random() * (window.innerWidth - 120);
-            const randomY = Math.random() * (window.innerHeight - 50);
+            const containerRect = noBtnContainer.getBoundingClientRect();
+            const containerCenterX = containerRect.left + containerRect.width / 2;
+            const containerCenterY = containerRect.top + containerRect.height / 2;
+            
+            // Generate random position far from current position
+            let randomX, randomY;
+            let distance = 0;
+            
+            while (distance < 100) {
+                randomX = Math.random() * (window.innerWidth - 120);
+                randomY = Math.random() * (window.innerHeight - 50);
+                distance = Math.hypot(randomX - containerCenterX, randomY - containerCenterY);
+            }
             
             noBtn.style.position = 'fixed';
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
             noBtn.style.transition = 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            
+            // Make YES button move to center of popup
+            const popupRect = mainPopup.getBoundingClientRect();
+            const popupCenterX = popupRect.left + popupRect.width / 2;
+            const popupCenterY = popupRect.top + popupRect.height / 2;
+            
+            yesBtn.style.position = 'fixed';
+            yesBtn.style.left = (popupCenterX - 50) + 'px';
+            yesBtn.style.top = (popupCenterY + 20) + 'px';
+            yesBtn.style.transition = 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         }
         
-        // Handle hover and click on NO button
-        noBtn.addEventListener('mouseenter', () => {
-            if (noClickCount < maxNoClicks) {
-                noClickCount++;
-                counter.textContent = `Lần hover/click: ${noClickCount}/${maxNoClicks}`;
-                makeNoButtonEscape();
-            } else if (noClickCount === maxNoClicks) {
-                noBtn.style.display = 'none';
-                counter.textContent = 'Button NO đã biến mất!';
-                noClickCount++;
-            }
-        });
-        
-        noBtn.addEventListener('click', (e) => {
+        // Handle touch and click on NO button
+        function handleNoButtonAttempt(e) {
             e.preventDefault();
+            e.stopPropagation();
+            
             if (noClickCount < maxNoClicks) {
                 noClickCount++;
-                counter.textContent = `Lần hover/click: ${noClickCount}/${maxNoClicks}`;
                 makeNoButtonEscape();
             } else if (noClickCount === maxNoClicks) {
                 noBtn.style.display = 'none';
-                counter.textContent = 'Button NO đã biến mất!';
                 noClickCount++;
             }
-        });
+        }
+        
+        // Desktop: hover
+        noBtn.addEventListener('mouseenter', handleNoButtonAttempt);
+        
+        // Mobile & Desktop: touch
+        noBtn.addEventListener('touchstart', handleNoButtonAttempt);
+        
+        // Fallback: click
+        noBtn.addEventListener('click', handleNoButtonAttempt);
     </script>
 </body>
 </html>
